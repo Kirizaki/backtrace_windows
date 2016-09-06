@@ -13,6 +13,7 @@ typedef unsigned long SIZE_T, *PSIZE_T;
 #endif
 #endif  // _MSC_VER < 1300
 
+//TODO: delete Internal class
 class StackWalkerInternal;  // forward
 class StackWalker
 {
