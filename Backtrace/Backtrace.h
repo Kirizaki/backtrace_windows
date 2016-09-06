@@ -76,7 +76,7 @@ protected:
 
    typedef enum CallstackEntryType { firstEntry, nextEntry, lastEntry };
 
-   BacktraceInternal *m_sw;
+   BacktraceInternal *m_bt;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
    BOOL m_modulesLoaded;
