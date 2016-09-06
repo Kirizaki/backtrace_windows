@@ -19,7 +19,7 @@ public:
 
 // Test for callstack of the current thread:
 //void Func5() { MyStackWalker sw; sw.ShowCallstack(); }
-void Func5() { MyStackWalker sw; sw.ShowCallstack(); }
+void Func5() { StackWalker sw; sw.ShowCallstack(); }
 void Func4() { Func5(); }
 void Func3() { Func4(); }
 void Func2() { Func3(); }
