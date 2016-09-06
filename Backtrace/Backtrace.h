@@ -14,21 +14,21 @@ typedef unsigned long SIZE_T, *PSIZE_T;
 #endif  // _MSC_VER < 1300
 
 //TODO: delete Internal class
-class StackWalkerInternal;  // forward
-class StackWalker
+class BacktraceInternal;  // forward
+class Backtrace
 {
 public:
 
    const static int OptionsAll = 0x3F;
 
-   StackWalker(
+   Backtrace(
       int options = OptionsAll, // 'int' is by design, to combine the enum-flags
       LPCSTR szSymPath = NULL,
       DWORD dwProcessId = GetCurrentProcessId(),
       HANDLE hProcess = GetCurrentProcess()
    );
-   StackWalker(DWORD dwProcessId, HANDLE hProcess);
-   virtual ~StackWalker();
+   Backtrace(DWORD dwProcessId, HANDLE hProcess);
+   virtual ~Backtrace();
 
    typedef BOOL(__stdcall *PReadProcessMemoryRoutine)(
       HANDLE      hProcess,
@@ -76,10 +76,7 @@ protected:
 
    typedef enum CallstackEntryType { firstEntry, nextEntry, lastEntry };
 
-   virtual void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion);
-   virtual void OnOutput(LPCSTR szText);
-
-   StackWalkerInternal *m_sw;
+   BacktraceInternal *m_sw;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
    BOOL m_modulesLoaded;
@@ -89,7 +86,7 @@ protected:
 
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
-   friend StackWalkerInternal;
+   friend BacktraceInternal;
 };
 
 
