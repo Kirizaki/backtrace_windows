@@ -76,7 +76,6 @@ typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread,
 // UnDecorateSymbolName()
 typedef DWORD(__stdcall WINAPI *tUDSN)(PCSTR DecoratedName, PSTR UnDecoratedName,
 	DWORD UndecoratedLength, DWORD Flags);
-typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD SearchPathLength);
 //tSC pSC;
 //tSFTA pSFTA;
 //tSGLFA pSGLFA;
@@ -87,7 +86,6 @@ typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD Se
 //tSLM pSLM;
 //tSW pSW;
 //tUDSN pUDSN;
-//tSGSP pSGSP;
 
 //TODO: delete Internal class
 class BacktraceInternal;  // forward
