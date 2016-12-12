@@ -73,9 +73,6 @@ typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR Im
 typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
 	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
 	PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
-// UnDecorateSymbolName()
-typedef DWORD(__stdcall WINAPI *tUDSN)(PCSTR DecoratedName, PSTR UnDecoratedName,
-	DWORD UndecoratedLength, DWORD Flags);
 //tSC pSC;
 //tSFTA pSFTA;
 //tSGLFA pSGLFA;
@@ -85,7 +82,6 @@ typedef DWORD(__stdcall WINAPI *tUDSN)(PCSTR DecoratedName, PSTR UnDecoratedName
 //tSI pSI;
 //tSLM pSLM;
 //tSW pSW;
-//tUDSN pUDSN;
 
 //TODO: delete Internal class
 class BacktraceInternal;  // forward
