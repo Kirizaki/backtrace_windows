@@ -43,7 +43,6 @@ public:
 
    BOOL ShowCallstack(
       HANDLE hThread = GetCurrentThread(),
-      const CONTEXT *context = NULL,
       PReadProcessMemoryRoutine readMemoryFunction = NULL,
       LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
    );
@@ -74,15 +73,18 @@ protected:
       CHAR loadedImageName[STACKWALK_MAX_NAMELEN];
    } CallstackEntry;
 
-   typedef enum CallstackEntryType { firstEntry, nextEntry, lastEntry };
+   typedef enum CallstackEntryType
+   {
+	   firstEntry,
+	   nextEntry,
+	   lastEntry,
+   };
 
    BacktraceInternal *m_bt;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
-   BOOL m_modulesLoaded;
+   /*BOOL m_modulesLoaded;*/
    LPSTR m_szSymPath;
-
-   int m_options;
 
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 

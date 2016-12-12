@@ -8,8 +8,6 @@
 
 #include "Backtrace.h"
 
-// Test for callstack of the current thread:
-//void Func5() { MyStackWalker sw; sw.ShowCallstack(); }
 void Func5() { Backtrace bt; bt.ShowCallstack(); }
 void Func4() { Func5(); }
 void Func3() { Func4(); }
