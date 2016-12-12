@@ -69,8 +69,6 @@ typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWOR
 typedef BOOL(__stdcall *tSI)(IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess);
 // SymLoadModule64()
 typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll);
-// SymSetOptions()
-typedef DWORD(__stdcall *tSSO)(IN DWORD SymOptions);
 // StackWalk64()
 typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
 	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
@@ -87,7 +85,6 @@ typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD Se
 //tSGSFA pSGSFA;
 //tSI pSI;
 //tSLM pSLM;
-//tSSO pSSO;
 //tSW pSW;
 //tUDSN pUDSN;
 //tSGSP pSGSP;
