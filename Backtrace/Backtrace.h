@@ -40,6 +40,8 @@ typedef unsigned long SIZE_T, *PSIZE_T;
 } while(0);
 #endif
 
+#define STACKWALK_MAX_NAMELEN 1024
+
 //from internal
 typedef struct IMAGEHLP_MODULE64_V2 {
 	DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
@@ -120,7 +122,6 @@ public:
    // in older compilers in order to use it... starting with VC7 we can declare it as "protected"
 protected:
 #endif
-   enum { STACKWALK_MAX_NAMELEN = 1024 }; // max name length for found symbols
 
 protected:
    // Entry for each Callstack-Entry
