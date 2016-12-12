@@ -6,6 +6,8 @@
 #include <dbghelp.h>
 #pragma comment(lib, "version.lib")  // for "VerQueryValue"
 
+#define OPTIONS_ALL 0x3F
+
 // special defines for VC5/6 (if no actual PSDK is installed):
 #if _MSC_VER < 1300
 typedef unsigned __int64 DWORD64, *PDWORD64;
@@ -61,8 +63,6 @@ typedef BOOL(__stdcall *tSGLFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWOR
 typedef DWORD64(__stdcall *tSGMB)(IN HANDLE hProcess, IN DWORD64 dwAddr);
 // SymGetModuleInfo64()
 typedef BOOL(__stdcall *tSGMI)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V2 *ModuleInfo);
-// SymGetOptions()
-typedef DWORD(__stdcall *tSGO)(VOID);
 // SymGetSymFromAddr64()
 typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol);
 // SymInitialize()
@@ -84,7 +84,6 @@ typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD Se
 //tSGLFA pSGLFA;
 //tSGMB pSGMB;
 //tSGMI pSGMI;
-//tSGO pSGO;
 //tSGSFA pSGSFA;
 //tSI pSI;
 //tSLM pSLM;
