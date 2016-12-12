@@ -1,7 +1,10 @@
 #pragma once
-
-#include <windows.h>
 #include <iostream>
+#include <windows.h>
+#include <tchar.h>
+#include <stdio.h>
+#include <dbghelp.h>
+#pragma comment(lib, "version.lib")  // for "VerQueryValue"
 
 // special defines for VC5/6 (if no actual PSDK is installed):
 #if _MSC_VER < 1300
@@ -35,14 +38,64 @@ typedef unsigned long SIZE_T, *PSIZE_T;
 } while(0);
 #endif
 
+//from internal
+typedef struct IMAGEHLP_MODULE64_V2 {
+	DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
+	DWORD64  BaseOfImage;            // base load address of module
+	DWORD    ImageSize;              // virtual size of the loaded module
+	DWORD    TimeDateStamp;          // date/time stamp from pe header
+	DWORD    CheckSum;               // checksum from the pe header
+	DWORD    NumSyms;                // number of symbols in the symbol table
+	SYM_TYPE SymType;                // type of symbols loaded
+	CHAR     ModuleName[32];         // module name
+	CHAR     ImageName[256];         // image name
+	CHAR     LoadedImageName[256];   // symbol file name
+};
+// SymCleanup()
+typedef BOOL(__stdcall *tSC)(IN HANDLE hProcess);
+//tSC pSC;
+// SymFunctionTableAccess64()
+typedef PVOID(__stdcall *tSFTA)(HANDLE hProcess, DWORD64 AddrBase);
+//tSFTA pSFTA;
+// SymGetLineFromAddr64()
+typedef BOOL(__stdcall *tSGLFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD pdwDisplacement, OUT PIMAGEHLP_LINE64 Line);
+//tSGLFA pSGLFA;
+// SymGetModuleBase64()
+typedef DWORD64(__stdcall *tSGMB)(IN HANDLE hProcess, IN DWORD64 dwAddr);
+//tSGMB pSGMB;
+// SymGetModuleInfo64()
+typedef BOOL(__stdcall *tSGMI)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V2 *ModuleInfo);
+//tSGMI pSGMI;
+// SymGetOptions()
+typedef DWORD(__stdcall *tSGO)(VOID);
+//tSGO pSGO;
+// SymGetSymFromAddr64()
+typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol);
+//tSGSFA pSGSFA;
+// SymInitialize()
+typedef BOOL(__stdcall *tSI)(IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess);
+//tSI pSI;
+// SymLoadModule64()
+typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll);
+//tSLM pSLM;
+// SymSetOptions()
+typedef DWORD(__stdcall *tSSO)(IN DWORD SymOptions);
+//tSSO pSSO;
+// StackWalk64()
+typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
+	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
+	PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+// UnDecorateSymbolName()
+typedef DWORD(__stdcall WINAPI *tUDSN)(PCSTR DecoratedName, PSTR UnDecoratedName,
+	DWORD UndecoratedLength, DWORD Flags);
+typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD SearchPathLength);
+
 //TODO: delete Internal class
 class BacktraceInternal;  // forward
 class Backtrace
 {
 public:
-
    const static int OptionsAll = 0x3F;
-
    Backtrace(
       int options = OptionsAll, // 'int' is by design, to combine the enum-flags
       LPCSTR szSymPath = NULL,
@@ -111,4 +164,5 @@ protected:
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
    friend BacktraceInternal;
+   HMODULE m_hDbhHelp;
 };
