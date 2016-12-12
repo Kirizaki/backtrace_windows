@@ -63,8 +63,6 @@ typedef PVOID(__stdcall *tSFTA)(HANDLE hProcess, DWORD64 AddrBase);
 typedef BOOL(__stdcall *tSGLFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD pdwDisplacement, OUT PIMAGEHLP_LINE64 Line);
 // SymGetModuleBase64()
 typedef DWORD64(__stdcall *tSGMB)(IN HANDLE hProcess, IN DWORD64 dwAddr);
-// SymGetModuleInfo64()
-typedef BOOL(__stdcall *tSGMI)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V2 *ModuleInfo);
 // SymGetSymFromAddr64()
 typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol);
 // SymInitialize()
@@ -79,7 +77,6 @@ typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread,
 //tSFTA pSFTA;
 //tSGLFA pSGLFA;
 //tSGMB pSGMB;
-//tSGMI pSGMI;
 //tSGSFA pSGSFA;
 //tSI pSI;
 //tSLM pSLM;
