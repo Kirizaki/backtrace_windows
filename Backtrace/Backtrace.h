@@ -53,34 +53,24 @@ typedef struct IMAGEHLP_MODULE64_V2 {
 };
 // SymCleanup()
 typedef BOOL(__stdcall *tSC)(IN HANDLE hProcess);
-//tSC pSC;
 // SymFunctionTableAccess64()
 typedef PVOID(__stdcall *tSFTA)(HANDLE hProcess, DWORD64 AddrBase);
-//tSFTA pSFTA;
 // SymGetLineFromAddr64()
 typedef BOOL(__stdcall *tSGLFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD pdwDisplacement, OUT PIMAGEHLP_LINE64 Line);
-//tSGLFA pSGLFA;
 // SymGetModuleBase64()
 typedef DWORD64(__stdcall *tSGMB)(IN HANDLE hProcess, IN DWORD64 dwAddr);
-//tSGMB pSGMB;
 // SymGetModuleInfo64()
 typedef BOOL(__stdcall *tSGMI)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT IMAGEHLP_MODULE64_V2 *ModuleInfo);
-//tSGMI pSGMI;
 // SymGetOptions()
 typedef DWORD(__stdcall *tSGO)(VOID);
-//tSGO pSGO;
 // SymGetSymFromAddr64()
 typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol);
-//tSGSFA pSGSFA;
 // SymInitialize()
 typedef BOOL(__stdcall *tSI)(IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess);
-//tSI pSI;
 // SymLoadModule64()
 typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll);
-//tSLM pSLM;
 // SymSetOptions()
 typedef DWORD(__stdcall *tSSO)(IN DWORD SymOptions);
-//tSSO pSSO;
 // StackWalk64()
 typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
 	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
@@ -89,6 +79,19 @@ typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread,
 typedef DWORD(__stdcall WINAPI *tUDSN)(PCSTR DecoratedName, PSTR UnDecoratedName,
 	DWORD UndecoratedLength, DWORD Flags);
 typedef BOOL(__stdcall WINAPI *tSGSP)(HANDLE hProcess, PSTR SearchPath, DWORD SearchPathLength);
+//tSC pSC;
+//tSFTA pSFTA;
+//tSGLFA pSGLFA;
+//tSGMB pSGMB;
+//tSGMI pSGMI;
+//tSGO pSGO;
+//tSGSFA pSGSFA;
+//tSI pSI;
+//tSLM pSLM;
+//tSSO pSSO;
+//tSW pSW;
+//tUDSN pUDSN;
+//tSGSP pSGSP;
 
 //TODO: delete Internal class
 class BacktraceInternal;  // forward
