@@ -1,7 +1,12 @@
 #pragma once
-
-#include <windows.h>
 #include <iostream>
+#include <windows.h>
+#include <tchar.h>
+#include <stdio.h>
+#include <dbghelp.h>
+#pragma comment(lib, "version.lib")  // for "VerQueryValue"
+
+#define OPTIONS_ALL 0x3F
 
 // special defines for VC5/6 (if no actual PSDK is installed):
 #if _MSC_VER < 1300
@@ -13,22 +18,84 @@ typedef unsigned long SIZE_T, *PSIZE_T;
 #endif
 #endif  // _MSC_VER < 1300
 
+#ifdef _M_IX86
+#define GET_CURRENT_CONTEXT(c, contextFlags) \
+  do { \
+    memset(&c, 0, sizeof(CONTEXT)); \
+    c.ContextFlags = contextFlags; \
+    __asm    call x \
+    __asm x: pop eax \
+    __asm    mov c.Eip, eax \
+    __asm    mov c.Ebp, ebp \
+    __asm    mov c.Esp, esp \
+  } while(0);
+#else
+
+// The following is defined for x86 (XP and higher), x64 and IA64:
+#define GET_CURRENT_CONTEXT(c, contextFlags) \
+  do { \
+    memset(&c, 0, sizeof(CONTEXT)); \
+    c.ContextFlags = contextFlags; \
+    RtlCaptureContext(&c); \
+} while(0);
+#endif
+
+#define STACKWALK_MAX_NAMELEN 1024
+
+//from internal
+typedef struct IMAGEHLP_MODULE64_V2 {
+	DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
+	DWORD64  BaseOfImage;            // base load address of module
+	DWORD    ImageSize;              // virtual size of the loaded module
+	DWORD    TimeDateStamp;          // date/time stamp from pe header
+	DWORD    CheckSum;               // checksum from the pe header
+	DWORD    NumSyms;                // number of symbols in the symbol table
+	SYM_TYPE SymType;                // type of symbols loaded
+	CHAR     ModuleName[32];         // module name
+	CHAR     ImageName[256];         // image name
+	CHAR     LoadedImageName[256];   // symbol file name
+};
+// SymCleanup()
+typedef BOOL(__stdcall *tSC)(IN HANDLE hProcess);
+// SymFunctionTableAccess64()
+typedef PVOID(__stdcall *tSFTA)(HANDLE hProcess, DWORD64 AddrBase);
+// SymGetLineFromAddr64()
+typedef BOOL(__stdcall *tSGLFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD pdwDisplacement, OUT PIMAGEHLP_LINE64 Line);
+// SymGetModuleBase64()
+typedef DWORD64(__stdcall *tSGMB)(IN HANDLE hProcess, IN DWORD64 dwAddr);
+// SymGetSymFromAddr64()
+typedef BOOL(__stdcall *tSGSFA)(IN HANDLE hProcess, IN DWORD64 dwAddr, OUT PDWORD64 pdwDisplacement, OUT PIMAGEHLP_SYMBOL64 Symbol);
+// SymInitialize()
+typedef BOOL(__stdcall *tSI)(IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL fInvadeProcess);
+// SymLoadModule64()
+typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll);
+// StackWalk64()
+typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
+	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
+	PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+//tSC pSC;
+//tSFTA pSFTA;
+//tSGLFA pSGLFA;
+//tSGMB pSGMB;
+//tSGSFA pSGSFA;
+//tSI pSI;
+//tSLM pSLM;
+//tSW pSW;
+
 //TODO: delete Internal class
-class StackWalkerInternal;  // forward
-class StackWalker
+class BacktraceInternal;  // forward
+class Backtrace
 {
 public:
-
    const static int OptionsAll = 0x3F;
-
-   StackWalker(
+   Backtrace(
       int options = OptionsAll, // 'int' is by design, to combine the enum-flags
       LPCSTR szSymPath = NULL,
       DWORD dwProcessId = GetCurrentProcessId(),
       HANDLE hProcess = GetCurrentProcess()
    );
-   StackWalker(DWORD dwProcessId, HANDLE hProcess);
-   virtual ~StackWalker();
+   Backtrace(DWORD dwProcessId, HANDLE hProcess);
+   virtual ~Backtrace();
 
    typedef BOOL(__stdcall *PReadProcessMemoryRoutine)(
       HANDLE      hProcess,
@@ -43,7 +110,6 @@ public:
 
    BOOL ShowCallstack(
       HANDLE hThread = GetCurrentThread(),
-      const CONTEXT *context = NULL,
       PReadProcessMemoryRoutine readMemoryFunction = NULL,
       LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
    );
@@ -53,7 +119,6 @@ public:
    // in older compilers in order to use it... starting with VC7 we can declare it as "protected"
 protected:
 #endif
-   enum { STACKWALK_MAX_NAMELEN = 1024 }; // max name length for found symbols
 
 protected:
    // Entry for each Callstack-Entry
@@ -74,75 +139,21 @@ protected:
       CHAR loadedImageName[STACKWALK_MAX_NAMELEN];
    } CallstackEntry;
 
-   typedef enum CallstackEntryType { firstEntry, nextEntry, lastEntry };
+   typedef enum CallstackEntryType
+   {
+	   firstEntry,
+	   nextEntry,
+	   lastEntry,
+   };
 
-   virtual void OnSymInit(LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName);
-   virtual void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion);
-   virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry &entry);
-   virtual void OnDbgHelpErr(LPCSTR szFuncName, DWORD gle, DWORD64 addr);
-   virtual void OnOutput(LPCSTR szText);
-
-   StackWalkerInternal *m_sw;
+   BacktraceInternal *m_bt;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
-   BOOL m_modulesLoaded;
+   /*BOOL m_modulesLoaded;*/
    LPSTR m_szSymPath;
-
-   int m_options;
 
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
-   friend StackWalkerInternal;
+   friend BacktraceInternal;
+   HMODULE m_hDbhHelp;
 };
-
-
-// The "ugly" assembler-implementation is needed for systems before XP
-// If you have a new PSDK and you only compile for XP and later, then you can use
-// the "RtlCaptureContext"
-// Currently there is no define which determines the PSDK-Version...
-// So we just use the compiler-version (and assumes that the PSDK is
-// the one which was installed by the VS-IDE)
-
-// INFO: If you want, you can use the RtlCaptureContext if you only target XP and later...
-//       But I currently use it in x64/IA64 environments...
-//#if defined(_M_IX86) && (_WIN32_WINNT <= 0x0500) && (_MSC_VER < 1400)
-
-#if defined(_M_IX86)
-#ifdef CURRENT_THREAD_VIA_EXCEPTION
-// TODO: The following is not a "good" implementation,
-// because the callstack is only valid in the "__except" block...
-#define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    EXCEPTION_POINTERS *pExp = NULL; \
-    __try { \
-      throw 0; \
-    } __except( ( (pExp = GetExceptionInformation()) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_EXECUTE_HANDLER)) {} \
-    if (pExp != NULL) \
-      memcpy(&c, pExp->ContextRecord, sizeof(CONTEXT)); \
-      c.ContextFlags = contextFlags; \
-  } while(0);
-#else
-// The following should be enough for walking the callstack...
-#define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    c.ContextFlags = contextFlags; \
-    __asm    call x \
-    __asm x: pop eax \
-    __asm    mov c.Eip, eax \
-    __asm    mov c.Ebp, ebp \
-    __asm    mov c.Esp, esp \
-  } while(0);
-#endif
-
-#else
-
-// The following is defined for x86 (XP and higher), x64 and IA64:
-#define GET_CURRENT_CONTEXT(c, contextFlags) \
-  do { \
-    memset(&c, 0, sizeof(CONTEXT)); \
-    c.ContextFlags = contextFlags; \
-    RtlCaptureContext(&c); \
-} while(0);
-#endif
