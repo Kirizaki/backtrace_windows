@@ -87,14 +87,7 @@ class BacktraceInternal;  // forward
 class Backtrace
 {
 public:
-   const static int OptionsAll = 0x3F;
-   Backtrace(
-      int options = OptionsAll, // 'int' is by design, to combine the enum-flags
-      LPCSTR szSymPath = NULL,
-      DWORD dwProcessId = GetCurrentProcessId(),
-      HANDLE hProcess = GetCurrentProcess()
-   );
-   Backtrace(DWORD dwProcessId, HANDLE hProcess);
+   Backtrace();
    virtual ~Backtrace();
 
    typedef BOOL(__stdcall *PReadProcessMemoryRoutine)(
@@ -108,11 +101,7 @@ public:
 
    BOOL LoadModules();
 
-   BOOL ShowCallstack(
-      HANDLE hThread = GetCurrentThread(),
-      PReadProcessMemoryRoutine readMemoryFunction = NULL,
-      LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
-   );
+   BOOL ShowCallstack();
 
 #if _MSC_VER >= 1300
    // due to some reasons, the "STACKWALK_MAX_NAMELEN" must be declared as "public"
@@ -149,7 +138,6 @@ protected:
    BacktraceInternal *m_bt;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
-   /*BOOL m_modulesLoaded;*/
    LPSTR m_szSymPath;
 
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
