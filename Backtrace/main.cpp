@@ -4,10 +4,6 @@
 
 #include "Backtrace.h"
 
-/*
-	brief: minimum: 1400
-*/
-
 void Func5() { Backtrace bt; bt.ShowCallstack(); }
 void Func4() { Func5(); }
 void Func3() { Func4(); }
