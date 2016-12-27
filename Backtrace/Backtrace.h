@@ -33,16 +33,16 @@
 
 typedef struct IMAGEHLP_MODULE64_V2
 {
-	DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
-	DWORD64  BaseOfImage;            // base load address of module
-	DWORD    ImageSize;              // virtual size of the loaded module
-	DWORD    TimeDateStamp;          // date/time stamp from pe header
-	DWORD    CheckSum;               // checksum from the pe header
-	DWORD    NumSyms;                // number of symbols in the symbol table
-	SYM_TYPE SymType;                // type of symbols loaded
-	CHAR     ModuleName[32];         // module name
-	CHAR     ImageName[256];         // image name
-	CHAR     LoadedImageName[256];   // symbol file name
+   DWORD    SizeOfStruct;           // set to sizeof(IMAGEHLP_MODULE64)
+   DWORD64  BaseOfImage;            // base load address of module
+   DWORD    ImageSize;              // virtual size of the loaded module
+   DWORD    TimeDateStamp;          // date/time stamp from pe header
+   DWORD    CheckSum;               // checksum from the pe header
+   DWORD    NumSyms;                // number of symbols in the symbol table
+   SYM_TYPE SymType;                // type of symbols loaded
+   CHAR     ModuleName[32];         // module name
+   CHAR     ImageName[256];         // image name
+   CHAR     LoadedImageName[256];   // symbol file name
 };
 // SymCleanup()
 typedef BOOL(__stdcall *tSC)(IN HANDLE hProcess);
@@ -60,8 +60,8 @@ typedef BOOL(__stdcall *tSI)(IN HANDLE hProcess, IN PSTR UserSearchPath, IN BOOL
 typedef DWORD64(__stdcall *tSLM)(IN HANDLE hProcess, IN HANDLE hFile, IN PSTR ImageName, IN PSTR ModuleName, IN DWORD64 BaseOfDll, IN DWORD SizeOfDll);
 // StackWalk64()
 typedef BOOL(__stdcall *tSW)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
-	PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
-	PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+   PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
+   PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
 class Backtrace
 {
@@ -131,8 +131,6 @@ private:
       char    szModule[MAX_MODULE_NAME32 + 1];
       char    szExePath[MAX_PATH];
    } MODULEENTRY32;
-   typedef MODULEENTRY32 *  PMODULEENTRY32;
-   typedef MODULEENTRY32 *  LPMODULEENTRY32;
 #pragma pack( pop )
    // PSAPI
    typedef struct _MODULEINFO {
