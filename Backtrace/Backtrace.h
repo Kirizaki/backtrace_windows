@@ -44,6 +44,7 @@ typedef struct IMAGEHLP_MODULE64_V2
    CHAR     ImageName[256];         // image name
    CHAR     LoadedImageName[256];   // symbol file name
 };
+
 // SymCleanup()
 typedef BOOL(__stdcall *tSC)(IN HANDLE hProcess);
 // SymFunctionTableAccess64()
@@ -68,29 +69,29 @@ class Backtrace
 public:
    Backtrace();
    ~Backtrace();
-   BOOL ShowCallstack();
+   void ShowCallstack();
 private:
-   void Init(LPCSTR szSymPath);
-   BOOL GetModuleListTH32(HANDLE hProcess, DWORD pid);
-   BOOL GetModuleListPSAPI(HANDLE hProcess);
-   DWORD LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
-   BOOL LoadModules();
-   void LoadModules(HANDLE hProcess, DWORD dwProcessId);
+   void     Init              (LPCSTR szSymPath);
+   BOOL     GetModuleListTH32 (HANDLE hProcess, DWORD pid);
+   BOOL     GetModuleListPSAPI(HANDLE hProcess);
+   DWORD    LoadModule        (HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
+   void     LoadModules       ();
+   void     LoadModules       (HANDLE hProcess, DWORD dwProcessId);
 
-   static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
+   HANDLE   m_hProcess;
+   DWORD    m_dwProcessId;
+   LPSTR    m_szSymPath;
+   HMODULE  m_hDbhHelp;
+   tSC      pSC;
+   tSFTA    pSFTA;
+   tSGLFA   pSGLFA;
+   tSGMB    pSGMB;
+   tSGSFA   pSGSFA;
+   tSI      pSI;
+   tSLM     pSLM;
+   tSW      pSW;
 
-   HANDLE m_hProcess;
-   DWORD m_dwProcessId;
-   LPSTR m_szSymPath;
-   HMODULE m_hDbhHelp;
-   tSC pSC;
-   tSFTA pSFTA;
-   tSGLFA pSGLFA;
-   tSGMB pSGMB;
-   tSGSFA pSGSFA;
-   tSI pSI;
-   tSLM pSLM;
-   tSW pSW;
+   static BOOL __stdcall BacktraceReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
    typedef enum CallstackEntryType
    {
@@ -101,42 +102,42 @@ private:
 
    typedef struct CallstackEntry
    {
-      DWORD64 offset;  // if 0, we have no valid entry
-      CHAR name[BACKTRACE_MAX_NAMELEN];
-      CHAR undName[BACKTRACE_MAX_NAMELEN];
-      CHAR undFullName[BACKTRACE_MAX_NAMELEN];
-      DWORD64 offsetFromSmybol;
-      DWORD offsetFromLine;
-      DWORD lineNumber;
-      CHAR lineFileName[BACKTRACE_MAX_NAMELEN];
-      DWORD symType;
-      LPCSTR symTypeString;
-      CHAR moduleName[BACKTRACE_MAX_NAMELEN];
-      DWORD64 baseOfImage;
-      CHAR loadedImageName[BACKTRACE_MAX_NAMELEN];
+      DWORD64  offset;  // if 0, we have no valid entry
+      CHAR     name[BACKTRACE_MAX_NAMELEN];
+      CHAR     undName[BACKTRACE_MAX_NAMELEN];
+      CHAR     undFullName[BACKTRACE_MAX_NAMELEN];
+      DWORD64  offsetFromSmybol;
+      DWORD    offsetFromLine;
+      DWORD    lineNumber;
+      CHAR     lineFileName[BACKTRACE_MAX_NAMELEN];
+      DWORD    symType;
+      LPCSTR   symTypeString;
+      CHAR     moduleName[BACKTRACE_MAX_NAMELEN];
+      DWORD64  baseOfImage;
+      CHAR     loadedImageName[BACKTRACE_MAX_NAMELEN];
    } CallstackEntry;
 
    // ToolHelp32
 #pragma pack( push, 8 )
    typedef struct tagMODULEENTRY32
    {
-      DWORD   dwSize;
-      DWORD   th32ModuleID;       // This module
-      DWORD   th32ProcessID;      // owning process
-      DWORD   GlblcntUsage;       // Global usage count on the module
-      DWORD   ProccntUsage;       // Module usage count in th32ProcessID's context
-      BYTE  * modBaseAddr;        // Base address of module in th32ProcessID's context
-      DWORD   modBaseSize;        // Size in bytes of module starting at modBaseAddr
-      HMODULE hModule;            // The hModule of this module in th32ProcessID's context
-      char    szModule[MAX_MODULE_NAME32 + 1];
-      char    szExePath[MAX_PATH];
+      DWORD    dwSize;
+      DWORD    th32ModuleID;       // This module
+      DWORD    th32ProcessID;      // owning process
+      DWORD    GlblcntUsage;       // Global usage count on the module
+      DWORD    ProccntUsage;       // Module usage count in th32ProcessID's context
+      BYTE*    modBaseAddr;        // Base address of module in th32ProcessID's context
+      DWORD    modBaseSize;        // Size in bytes of module starting at modBaseAddr
+      HMODULE  hModule;            // The hModule of this module in th32ProcessID's context
+      char     szModule[MAX_MODULE_NAME32 + 1];
+      char     szExePath[MAX_PATH];
    } MODULEENTRY32;
 #pragma pack( pop )
    // PSAPI
    typedef struct _MODULEINFO {
-      LPVOID lpBaseOfDll;
-      DWORD SizeOfImage;
-      LPVOID EntryPoint;
+      LPVOID   lpBaseOfDll;
+      DWORD    SizeOfImage;
+      LPVOID   EntryPoint;
    } MODULEINFO, *LPMODULEINFO;
 #pragma endregion
 
