@@ -7,6 +7,9 @@
 #pragma comment(lib, "version.lib")  // for "VerQueryValue"
 
 #define OPTIONS_ALL 0x3F
+// **************************************** ToolHelp32 ************************
+#define MAX_MODULE_NAME32   255
+#define TH32CS_SNAPMODULE   0x00000008
 
 // special defines for VC5/6 (if no actual PSDK is installed):
 #if _MSC_VER < 1300
@@ -100,15 +103,14 @@ public:
       );
 
    BOOL LoadModules();
-
    BOOL ShowCallstack();
 
-#if _MSC_VER >= 1300
-   // due to some reasons, the "STACKWALK_MAX_NAMELEN" must be declared as "public"
-   // in older compilers in order to use it... starting with VC7 we can declare it as "protected"
-protected:
-#endif
-
+private:
+   void Init(LPCSTR szSymPath);
+   BOOL GetModuleListTH32(HANDLE hProcess, DWORD pid);
+   BOOL GetModuleListPSAPI(HANDLE hProcess);
+   DWORD LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
+   void LoadModules(HANDLE hProcess, DWORD dwProcessId);
 protected:
    // Entry for each Callstack-Entry
    typedef struct CallstackEntry
@@ -135,7 +137,6 @@ protected:
 	   lastEntry,
    };
 
-   BacktraceInternal *m_bt;
    HANDLE m_hProcess;
    DWORD m_dwProcessId;
    LPSTR m_szSymPath;
@@ -143,5 +144,45 @@ protected:
    static BOOL __stdcall myReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
    friend BacktraceInternal;
+
+#pragma region Backtrace Internal
+
    HMODULE m_hDbhHelp;
+
+   tSC pSC;
+   tSFTA pSFTA;
+   tSGLFA pSGLFA;
+   tSGMB pSGMB;
+   tSGSFA pSGSFA;
+   tSI pSI;
+   tSLM pSLM;
+   tSW pSW;
+
+   // **************************************** ToolHelp32 ************************
+#pragma pack( push, 8 )
+   typedef struct tagMODULEENTRY32
+   {
+      DWORD   dwSize;
+      DWORD   th32ModuleID;       // This module
+      DWORD   th32ProcessID;      // owning process
+      DWORD   GlblcntUsage;       // Global usage count on the module
+      DWORD   ProccntUsage;       // Module usage count in th32ProcessID's context
+      BYTE  * modBaseAddr;        // Base address of module in th32ProcessID's context
+      DWORD   modBaseSize;        // Size in bytes of module starting at modBaseAddr
+      HMODULE hModule;            // The hModule of this module in th32ProcessID's context
+      char    szModule[MAX_MODULE_NAME32 + 1];
+      char    szExePath[MAX_PATH];
+   } MODULEENTRY32;
+   typedef MODULEENTRY32 *  PMODULEENTRY32;
+   typedef MODULEENTRY32 *  LPMODULEENTRY32;
+#pragma pack( pop )
+
+   // **************************************** PSAPI ************************
+   typedef struct _MODULEINFO {
+      LPVOID lpBaseOfDll;
+      DWORD SizeOfImage;
+      LPVOID EntryPoint;
+   } MODULEINFO, *LPMODULEINFO;
+#pragma endregion
+
 };
