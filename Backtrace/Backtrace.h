@@ -7,7 +7,7 @@
 #include <sstream>
 #pragma comment(lib, "version.lib")  // for "VerQueryValue"
 
-#define BACKTRACE_MAX_NAMELEN    1024
+#define BACKTRACE_MAX_NAMELEN 1024
 
 typedef struct CallstackEntry
 {
@@ -29,14 +29,13 @@ public:
 private:
    void     Callstack();
    void     LoadModule();
-   void     LoadDBGHELP(LPCSTR szSymPath);
+   void     LoadDBGHELP(std::string& symPath);
    void     LoadModuleInformation(HANDLE hProcess);
    int      m_maxDepth;
    DWORD    LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
 
    HANDLE   m_hProcess;
    DWORD    m_dwProcessId;
-   LPSTR    m_szSymPath;
    HMODULE  m_hDbhHelp;
 
    std::vector<CallstackEntry> m_callStack;
