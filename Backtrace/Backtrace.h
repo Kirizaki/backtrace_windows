@@ -58,14 +58,11 @@ private:
    {
       DWORD64  offset;  // if 0, we have no valid entry
       CHAR     name[BACKTRACE_MAX_NAMELEN];
-      CHAR     undName[BACKTRACE_MAX_NAMELEN];
-      CHAR     undFullName[BACKTRACE_MAX_NAMELEN];
       DWORD64  offsetFromSmybol;
       DWORD    offsetFromLine;
       DWORD    lineNumber;
       CHAR     lineFileName[BACKTRACE_MAX_NAMELEN];
       DWORD    symType;
-      LPCSTR   symTypeString;
    } CallstackEntry;
 
    std::vector<CallstackEntry> m_callStack;
