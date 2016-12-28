@@ -36,11 +36,12 @@
 class Backtrace
 {
 public:
-   Backtrace();
+   Backtrace(int maxDepth = 32);
    ~Backtrace();
    void ShowCallstack();
    std::string ToString();
 private:
+   int      m_maxDepth;
    void     Init(LPCSTR szSymPath);
    BOOL     GetModuleListPSAPI(HANDLE hProcess);
    DWORD    LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
@@ -62,7 +63,6 @@ private:
       DWORD    offsetFromLine;
       DWORD    lineNumber;
       CHAR     lineFileName[BACKTRACE_MAX_NAMELEN];
-      DWORD    symType;
    } CallstackEntry;
 
    std::vector<CallstackEntry> m_callStack;
