@@ -2,7 +2,6 @@
 #include <iostream>
 #include <windows.h>
 #include <tchar.h>
-#include <stdio.h>
 #include <dbghelp.h>
 #include <vector>
 #include <sstream>
@@ -10,35 +9,35 @@
 
 #define BACKTRACE_MAX_NAMELEN    1024
 
+typedef struct CallstackEntry
+{
+   DWORD64  offset;
+   CHAR     function[BACKTRACE_MAX_NAMELEN];
+   DWORD64  offsetFromSmybol;
+   DWORD    offsetFromLine;
+   DWORD    line;
+   CHAR     file[BACKTRACE_MAX_NAMELEN];
+};
+
 class Backtrace
 {
 public:
    Backtrace(int maxDepth = 32);
    ~Backtrace();
-   void ShowCallstack();
-   std::string ToString();
-   typedef struct CallstackEntry
-   {
-      DWORD64  offset;  // if 0, we have no valid entry
-      CHAR     name[BACKTRACE_MAX_NAMELEN];
-      DWORD64  offsetFromSmybol;
-      DWORD    offsetFromLine;
-      DWORD    lineNumber;
-      CHAR     lineFileName[BACKTRACE_MAX_NAMELEN];
-   } CallstackEntry;
+   std::string GetBacktrace();
+
 private:
+   void     Callstack();
+   void     LoadModule();
+   void     LoadDBGHELP(LPCSTR szSymPath);
+   void     LoadModuleInformation(HANDLE hProcess);
    int      m_maxDepth;
-   void     Init(LPCSTR szSymPath);
    DWORD    LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
-   void     LoadModules();
-   void     LoadModulesPSAPI(HANDLE hProcess);
 
    HANDLE   m_hProcess;
    DWORD    m_dwProcessId;
    LPSTR    m_szSymPath;
    HMODULE  m_hDbhHelp;
-
-   static BOOL __stdcall BacktraceReadProcMem(HANDLE hProcess, DWORD64 qwBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead);
 
    std::vector<CallstackEntry> m_callStack;
 };
