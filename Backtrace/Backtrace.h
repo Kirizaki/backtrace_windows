@@ -32,7 +32,7 @@ private:
    void     LoadDBGHELP();
    void     LoadModuleInformation(HANDLE hProcess);
    int      m_maxDepth;
-   DWORD    LoadModule(HANDLE hProcess, const std::string& img, DWORD64 baseAddr, DWORD size);
+   DWORD    LoadModule(HANDLE hProcess, const char modulePath[], DWORD64 baseAddr, DWORD size);
 
    HANDLE   m_hProcess;
    DWORD    m_dwProcessId;
