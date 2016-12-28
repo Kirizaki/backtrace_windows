@@ -29,10 +29,10 @@ public:
 private:
    void     Callstack();
    void     LoadModule();
-   void     LoadDBGHELP(std::string& symPath);
+   void     LoadDBGHELP();
    void     LoadModuleInformation(HANDLE hProcess);
    int      m_maxDepth;
-   DWORD    LoadModule(HANDLE hProcess, LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size);
+   DWORD    LoadModule(HANDLE hProcess, LPCSTR img, DWORD64 baseAddr, DWORD size);
 
    HANDLE   m_hProcess;
    DWORD    m_dwProcessId;
